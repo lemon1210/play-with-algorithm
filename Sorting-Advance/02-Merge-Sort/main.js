@@ -60,7 +60,7 @@ function sort(arr, l, r){
     if(r - l < 15){      //优化点二
         insertionSort(arr, l, r);
     }
-    let mid = Math.floor((r - l)/ 2);
+    let mid = Math.floor((r - l)/ 2); 
     sort(arr, l, mid);
     sort(arr, mid + 1, r);
     if(arr[mid] > arr[mid + 1]){ //优化点一:如果arr[mid] < arr[mid + 1] 说明整个数组都应该排序好了
