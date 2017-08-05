@@ -1,7 +1,7 @@
 /*
     二分搜索树 BST
         二叉树
-        不一定是完全二叉树，用数组表示不方便，
+        不一定是完全二叉树(可以是不平衡的，左右孩子可有可无)，用数组表示不方便，
         每个节点的键值大于左孩子
         每个节点的键值小于右孩子
     查找问题是计算机中非常重要的基础问题
@@ -167,6 +167,23 @@ BST.prototype.postOrder = function(){
         }
     })(this.root);
 };
+//层序遍历(需要利用队列)--广度优先搜索
+BST.prototype.levelOrder = function(){
+    var q = [];
+    q.push(this.root)
+    while(q.length !== 0){
+        var res = q.shift();
+
+        console.log(res.show());
+        
+        if(res.left !== null){
+            q.push(res.left);
+        }
+        if(res.right !== null){
+            q.push(res.right);
+        }
+    }
+};
 //查找最小值
 BST.prototype.getMin = function(){
     if(this.root){
@@ -248,6 +265,4 @@ for(var i = 0; i < arr.length; i++){
     bst.insert(arr[i]);
 }
 console.log(bst.root);
-console.log(bst.count);
-bst.remove(7);
-console.log(bst.count);
+bst.levelOrder();
