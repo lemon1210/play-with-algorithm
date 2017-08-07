@@ -29,4 +29,10 @@
 | **树**| |
 | 二分查找法 | [js源码]() |
 | BST的实现 | [js源码]() |
+| **并查集**| |
+| Quick Find | [js源码]() |
+| Quick Union | [js源码]() |
+| 基于size的优化 | [js源码]() |
+| 基于rank的优化 | [js源码]() |
+| Path Compression | [js源码]() |
 
