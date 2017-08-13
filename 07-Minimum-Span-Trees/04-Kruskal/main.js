@@ -144,4 +144,3 @@ for(var i = 1; i < arr.length; i++){
     g.addEdge(parseInt(v[0]), parseInt(v[1]), parseFloat(v[2]));
 }
 console.log(g.mst());
-

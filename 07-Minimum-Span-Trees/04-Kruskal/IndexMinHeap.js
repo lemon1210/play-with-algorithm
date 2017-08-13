@@ -1,7 +1,3 @@
-// 最小索引堆 
-// 好处：可以提供最小值，又有更新操作
-// data和indexes数组都是从1开始的
-// 真正拿来shiftUp,shiftDown的是indexes数组
 
 function IndexMinHeap(){
     this.data = [];

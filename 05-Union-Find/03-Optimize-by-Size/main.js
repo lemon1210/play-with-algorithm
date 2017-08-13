@@ -15,21 +15,15 @@ function UnionFind(n){
     }
 }
 
-// 查找过程, 查找元素p所对应的集合编号
-// O(h)复杂度, h为树的高度
-//find查找的是 传入元素p 的根节点 可能是它自己 也可以经一层一层回溯得来的
 UnionFind.prototype.find = function(p){
     if(p >= 0 && p < this.count){
-        while(p !== this.parent[p]){ //能满足该条件说明p不是根结点
+        while(p !== this.parent[p]){
             p = this.parent[p];
         }
         return p;
     }
 };
 
-// 查看元素p和元素q是否所属一个集合
-// O(h)复杂度, h为树的高度
-//判断是否有连接，判断的是它们的根节点是否相同
 UnionFind.prototype.isConnected = function(p, q){
     return this.find(p) === this.find(q);
 };
