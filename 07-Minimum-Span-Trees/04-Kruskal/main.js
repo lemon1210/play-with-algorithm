@@ -1,9 +1,19 @@
-// 改善后的Prim算法 O(Elogv)
-// 改变的是visit和mst这两个方法 
+// Kruskal算法(思路超级简单的算法)  ---- O（ElogE）
+// 将所有边按权值大小进行排序
+// 每次都取出未标记的最小边，并标记。
+// 看该最小边在图中与其他已标记的边是否形成环
+// 如果形成环，则不是最小生成树的一条边。
 
+// 图可能存在多个最小生成树
 
-//引入最小索引堆
-var H = require('./IndexMinHeap.js');
+// 判断环：每次将某边A加入最小生成树时将该边的两端点进行union操作
+// 下次要加入最小生成树的边B，只需在相应的并查集中查找该B边的两个端点的根节点
+// 是否相同。如果相同，说明已经会形成环
+
+//引入最小索引堆(优先队列)
+var Q = require('./Queue.js');
+//引入并查集
+var UF = require('./UnionFind.js');
 
 // 有权的稀疏图-邻接表
 //边类
@@ -27,26 +37,27 @@ Edge.prototype.w = function(){
     return this.b;
 };
 
+//图类
 function SparseGraph(n, directed){
     this.vertices = n;
     this.directed = directed;
     this.edges = 0;
-    this.h = new H(); // 最小索引堆, 算法辅助数据结构。存的是相邻横切边最小的权值
-    this.edgeTo = []; // 访问的点所对应的边, 算法辅助数据结构。改数组索引对应某个结点，存的是和结点相邻的最小横切边
-    this.marked = []; // 标记数组, 在算法运行过程中标记节点i是否被访问 
+    this.q = new Q();
+    this.uf = new UF(n); //传入n个节点个数对并查集进行初始化
     this.adj = [];
     for(var i = 0; i < this.vertices; i++){
         this.adj[i] = [];
-        this.marked[i] = false;
     }
 }
 
 SparseGraph.prototype.getVertices = function(){
     return this.vertices;
 };
+
 SparseGraph.prototype.getEdges = function(){
     return this.edges;
 };
+
 SparseGraph.prototype.addEdge = function(v, m, w){
     if(v >= 0 && v < this.vertices && m >= 0 && m < this.vertices){
         this.adj[v].push(new Edge(v, m, w));
@@ -56,6 +67,7 @@ SparseGraph.prototype.addEdge = function(v, m, w){
         this.edges++;
     }
 };
+
 SparseGraph.prototype.hasEdge = function(v, m){
     if(v >= 0 && v < this.vertices && m >= 0 && m < this.vertices){
         for(var i = 0; i < this.adj[v].length; i++){
@@ -66,44 +78,31 @@ SparseGraph.prototype.hasEdge = function(v, m){
         return false;
     }
 };
+
 SparseGraph.prototype.iterator = function(v){
     if(v >= 0 && v < this.vertices){
         return this.adj[v];
     }
 };
 
-SparseGraph.prototype.visit = function(v){
-    if(v >= 0 && v < this.vertices){
-        this.marked[v] = true;  //标记为"红色"节点
-        var arr = this.iterator(v); //拿到v的所有邻边
-        for(var i = 0, len = arr.length; i < len; i++){
-            var e = arr[i];
-            var w = e.other(v);
-            // 如果边的另一端点未被访问，说明是横切边
-            if(!this.marked[w]){
-                // 如果从没有考虑过这个端点, 直接将这个端点和与之相连接的边加入索引堆
-                if(!this.edgeTo[w]){
-                    this.edgeTo[w] = e;
-                    this.h.insert(w, e.weight);
-                // 如果曾经考虑这个端点, 但现在的边比之前考虑的边更短, 则进行替换
-                }else if(e.weight < this.edgeTo[w].weight){
-                    this.edgeTo[w] = e;
-                    this.h.change(w, e.weight);
+SparseGraph.prototype.mst = function(){
+    if(this.edges > 0){
+        var res = [];
+        for(var i = 0, len = this.adj.length; i < len; i++){
+            for(var j = 0; j < this.adj[i].length; j++){
+                var e = this.adj[i][j];
+                if(e.v() < e.w()){ //排除重复的边
+                    this.q.enqueue(e);
                 }
             }
         }
-    }
-};
-
-
-SparseGraph.prototype.mst = function(){
-    if(this.vertices >= 0){
-        var res = [];
-        this.visit(0); //执行后，会将与0相关的所有横切边都insert进最小堆中
-        while(!this.h.isEmpty()){
-            var v = this.h.extractMinIndex();    //得到最小权值的横切边的索引，索引=节点
-            res.push(this.edgeTo[v]);
-            this.visit(v);
+        while(!this.q.isEmpty()){
+            var e = this.q.dequeue(); //拿到最小权值的边
+            if(this.uf.isConnected(e.v(), e.w())){ //如果边的两端点的根节点是相同的，说明形成环
+                continue;
+            } 
+            res.push(e);
+            this.uf.union(e.v(), e.w());
         }
         return res;
     }
